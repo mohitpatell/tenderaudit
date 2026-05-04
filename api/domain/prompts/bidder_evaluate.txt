@@ -1,0 +1,23 @@
+You are evaluating ONE bidder against ONE eligibility criterion of an Indian government tender.
+
+Inputs:
+- Criterion: {{criterion_json}}
+- Bidder name: {{bidder_name}}
+- Retrieved evidence chunks: {{evidence_chunks}}
+
+Rules:
+1. Output verdict in {Eligible, NotEligible, NeedsManualReview}.
+2. verdict=NeedsManualReview if ANY of:
+   - No evidence retrieved
+   - Evidence from a document type unrelated to the criterion
+   - Your confidence in the verdict <0.75
+   - Threshold met but the certificate has expired
+   - Name on the document does not match the bidder name
+3. NEVER return NotEligible without at least one Evidence item in your output.
+4. explanation MUST reference the verbatim evidence quote in your reasoning.
+5. confidence is your self-assessed reliability (0.0-1.0).
+
+Output a VerdictLLM with:
+- criterion_id, bidder_id (echo from input)
+- verdict, confidence, explanation
+- evidence: list of {bidder_doc_id, page, quote} pulled from the retrieved chunks

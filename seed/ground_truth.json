@@ -1,0 +1,343 @@
+[
+  {
+    "tender_id": "crpf-1",
+    "title": "CRPF GeM Procurement Checklist",
+    "issuer": "CRPF",
+    "pdf_filename": "crpf-1-gem-checklist.pdf",
+    "criteria": [
+      {
+        "id": "C1",
+        "name": "GeM Registration",
+        "type": "compliance",
+        "description": "Seller must be registered on Government e-Marketplace (GeM) portal",
+        "required_documents": ["GeM Seller Certificate / Portal Screenshot"],
+        "is_mandatory": true,
+        "source_clause": "Vendor shall be registered on the GeM portal (gem.gov.in) and possess a valid Seller ID."
+      },
+      {
+        "id": "C2",
+        "name": "GST Registration",
+        "type": "compliance",
+        "description": "Valid GST registration certificate",
+        "required_documents": ["GST Certificate"],
+        "is_mandatory": true,
+        "source_clause": "Bidder must hold a valid GST Registration Certificate."
+      },
+      {
+        "id": "C3",
+        "name": "PAN Card",
+        "type": "compliance",
+        "description": "Permanent Account Number issued by Income Tax Department",
+        "required_documents": ["PAN Card copy"],
+        "is_mandatory": true,
+        "source_clause": "Copy of PAN Card of the firm/company is mandatory."
+      }
+    ]
+  },
+  {
+    "tender_id": "crpf-2",
+    "title": "CRPF Bhopal Works NIT-71",
+    "issuer": "CRPF",
+    "pdf_filename": "crpf-2-bhopal-nit71.pdf",
+    "criteria": [
+      {
+        "id": "C1",
+        "name": "Average Annual Turnover",
+        "type": "financial",
+        "threshold_value": 41.6,
+        "threshold_unit": "INR_lakhs",
+        "threshold_operator": ">=",
+        "source_clause": "Average Annual Turnover Certificate of Rs. 41.6 Lakh (Proforma as Appendix-C) on works during the last three financial years from a Chartered Accountant.",
+        "required_documents": ["CA Average Turnover Certificate"],
+        "is_mandatory": true
+      },
+      {
+        "id": "C2",
+        "name": "Earnest Money Deposit (EMD)",
+        "type": "financial",
+        "threshold_value": 41600,
+        "threshold_unit": "INR",
+        "threshold_operator": "==",
+        "source_clause": "EMD of Rs. 41,600/- (Rupees Forty One Thousand Six Hundred only) shall be deposited.",
+        "required_documents": ["EMD Instrument / FDR / Bank Guarantee"],
+        "is_mandatory": true
+      },
+      {
+        "id": "C3",
+        "name": "ISO 9001 Certification",
+        "type": "quality",
+        "description": "Valid ISO 9001:2015 Quality Management System certification",
+        "required_documents": ["ISO 9001 Certificate (current, valid)"],
+        "is_mandatory": true,
+        "source_clause": "The bidder shall hold a valid ISO 9001:2015 certification from an accredited body."
+      },
+      {
+        "id": "C4",
+        "name": "Solvency Certificate",
+        "type": "financial",
+        "threshold_value": 20800,
+        "threshold_unit": "INR",
+        "threshold_operator": ">=",
+        "source_clause": "Solvency certificate from a Nationalised / Scheduled Bank for not less than Rs. 20,800/-.",
+        "required_documents": ["Bank Solvency Certificate"],
+        "is_mandatory": true
+      },
+      {
+        "id": "C5",
+        "name": "Integrity Pact",
+        "type": "compliance",
+        "description": "Signed Integrity Pact between CRPF and the bidder",
+        "required_documents": ["Signed Integrity Pact"],
+        "is_mandatory": true,
+        "source_clause": "All bidders shall sign and submit the Integrity Pact as per the prescribed format."
+      }
+    ]
+  },
+  {
+    "tender_id": "crpf-3",
+    "title": "CRPF South Zone Hyderabad Major Works",
+    "issuer": "CRPF",
+    "pdf_filename": "crpf-3-hyd-major-work.pdf",
+    "criteria": [
+      {
+        "id": "C1",
+        "name": "Average Annual Turnover",
+        "type": "financial",
+        "threshold_value": 75.0,
+        "threshold_unit": "INR_lakhs",
+        "threshold_operator": ">=",
+        "source_clause": "Average Annual Turnover of Rs. 75 Lakhs on civil works during the last three financial years, certified by a Chartered Accountant.",
+        "required_documents": ["CA Average Turnover Certificate"],
+        "is_mandatory": true
+      },
+      {
+        "id": "C2",
+        "name": "Experience in Similar Works",
+        "type": "technical",
+        "description": "At least one similar work of value >= 50% of estimated cost in last 7 years",
+        "required_documents": ["Experience / Completion Certificates from Government Authority"],
+        "is_mandatory": true,
+        "source_clause": "The bidder must have completed at least one similar work of value not less than 50% of the estimated cost in the last seven years."
+      },
+      {
+        "id": "C3",
+        "name": "ISO 9001 Certification",
+        "type": "quality",
+        "description": "Valid ISO 9001:2015 certification",
+        "required_documents": ["ISO 9001 Certificate"],
+        "is_mandatory": true,
+        "source_clause": "Bidder shall hold valid ISO 9001:2015 certification."
+      },
+      {
+        "id": "C4",
+        "name": "Non-Blacklisting Affidavit",
+        "type": "compliance",
+        "description": "Self-declaration that bidder is not blacklisted by any Central/State Government",
+        "required_documents": ["Non-Blacklisting Affidavit on stamp paper"],
+        "is_mandatory": true,
+        "source_clause": "Bidder shall submit a self-declaration on stamp paper stating not blacklisted by any Government entity."
+      }
+    ]
+  },
+  {
+    "tender_id": "crpf-4",
+    "title": "CRPF J&K GC Senior Works",
+    "issuer": "CRPF",
+    "pdf_filename": "crpf-4-jk-gc-snr.pdf",
+    "criteria": [
+      {
+        "id": "C1",
+        "name": "Average Annual Turnover",
+        "type": "financial",
+        "threshold_value": 52.0,
+        "threshold_unit": "INR_lakhs",
+        "threshold_operator": ">=",
+        "source_clause": "Average Annual Turnover Certificate of Rs. 52 Lakh for the last three financial years from a CA.",
+        "required_documents": ["CA Average Turnover Certificate"],
+        "is_mandatory": true
+      },
+      {
+        "id": "C2",
+        "name": "EMD",
+        "type": "financial",
+        "threshold_value": 52000,
+        "threshold_unit": "INR",
+        "threshold_operator": "==",
+        "source_clause": "EMD of Rs. 52,000/- to be deposited in favour of the Commandant.",
+        "required_documents": ["EMD Demand Draft / FDR"],
+        "is_mandatory": true
+      },
+      {
+        "id": "C3",
+        "name": "ISO 9001 Certification",
+        "type": "quality",
+        "required_documents": ["ISO 9001 Certificate"],
+        "is_mandatory": true,
+        "source_clause": "Valid ISO 9001:2015 certification required."
+      },
+      {
+        "id": "C4",
+        "name": "DSC Class 3",
+        "type": "compliance",
+        "description": "Class 3 Digital Signature Certificate for e-tendering",
+        "required_documents": ["DSC Class 3 Certificate"],
+        "is_mandatory": true,
+        "source_clause": "Bidder must possess a Class 3 DSC for signing and submitting bids on the e-procurement portal."
+      }
+    ]
+  },
+  {
+    "tender_id": "mospi-5",
+    "title": "MoSPI / NSSTA IT Infrastructure",
+    "issuer": "MoSPI",
+    "pdf_filename": "mospi-5-it-infra.pdf",
+    "criteria": [
+      {
+        "id": "C1",
+        "name": "Annual Turnover",
+        "type": "financial",
+        "threshold_value": 500.0,
+        "threshold_unit": "INR_lakhs",
+        "threshold_operator": ">=",
+        "source_clause": "The bidder should have average annual turnover of at least Rs. 5 Crore (Rs. 500 Lakhs) from IT related works/services during last three financial years.",
+        "required_documents": ["Audited Balance Sheet", "CA Certificate"],
+        "is_mandatory": true
+      },
+      {
+        "id": "C2",
+        "name": "ISO 9001 / ISO 27001 Certification",
+        "type": "quality",
+        "description": "Valid ISO 9001:2015 or ISO 27001:2013 certification",
+        "required_documents": ["ISO Certificate"],
+        "is_mandatory": true,
+        "source_clause": "The bidder shall possess valid ISO 9001:2015 or ISO 27001:2013 certification."
+      },
+      {
+        "id": "C3",
+        "name": "Past Experience",
+        "type": "technical",
+        "description": "Minimum 3 years of experience in IT infrastructure supply/installation for Government",
+        "required_documents": ["Work Order copies", "Completion Certificates"],
+        "is_mandatory": true,
+        "source_clause": "Bidder should have at least 3 years experience in supply and installation of IT infrastructure for Government departments."
+      }
+    ]
+  },
+  {
+    "tender_id": "mea-6",
+    "title": "MEA Namibia IT Procurement",
+    "issuer": "MEA",
+    "pdf_filename": "mea-6-namibia-it.pdf",
+    "criteria": [
+      {
+        "id": "C1",
+        "name": "Annual Turnover",
+        "type": "financial",
+        "threshold_value": 200.0,
+        "threshold_unit": "INR_lakhs",
+        "threshold_operator": ">=",
+        "source_clause": "Average annual turnover of Rs. 2 Crore for the last three years from IT products/services, certified by a CA.",
+        "required_documents": ["CA Turnover Certificate", "Audited Balance Sheet"],
+        "is_mandatory": true
+      },
+      {
+        "id": "C2",
+        "name": "Authorised Dealer Certificate",
+        "type": "compliance",
+        "description": "Manufacturer's authorisation for OEM products being supplied",
+        "required_documents": ["OEM Authorisation Letter"],
+        "is_mandatory": true,
+        "source_clause": "Bidder must be an authorised dealer/partner of the OEM for all IT products being supplied."
+      },
+      {
+        "id": "C3",
+        "name": "GST & PAN",
+        "type": "compliance",
+        "required_documents": ["GST Certificate", "PAN Card"],
+        "is_mandatory": true,
+        "source_clause": "Valid GST registration and PAN are mandatory."
+      }
+    ]
+  },
+  {
+    "tender_id": "stqc-7",
+    "title": "STQC Annual Subscription IEC/BIS Standards",
+    "issuer": "STQC",
+    "pdf_filename": "stqc-7-iec-bis.pdf",
+    "criteria": [
+      {
+        "id": "C1",
+        "name": "Registered Publisher / Authorised Distributor",
+        "type": "compliance",
+        "description": "Must be an authorised distributor of IEC and BIS standards",
+        "required_documents": ["Authorisation Certificate from IEC / BIS"],
+        "is_mandatory": true,
+        "source_clause": "The bidder shall be an authorised distributor of IEC and BIS standards in India."
+      },
+      {
+        "id": "C2",
+        "name": "EMD",
+        "type": "financial",
+        "threshold_value": 5000,
+        "threshold_unit": "INR",
+        "threshold_operator": "==",
+        "source_clause": "EMD of Rs. 5,000/- to be submitted along with the tender.",
+        "required_documents": ["EMD Demand Draft"],
+        "is_mandatory": true
+      },
+      {
+        "id": "C3",
+        "name": "GST Registration",
+        "type": "compliance",
+        "required_documents": ["GST Certificate"],
+        "is_mandatory": true,
+        "source_clause": "Valid GST registration required."
+      }
+    ]
+  },
+  {
+    "tender_id": "cppp-8",
+    "title": "CPPP Model Tender Document (Goods)",
+    "issuer": "CPPP/NIC",
+    "pdf_filename": "cppp-8-model-tender.pdf",
+    "criteria": [
+      {
+        "id": "C1",
+        "name": "Financial Eligibility — Annual Turnover",
+        "type": "financial",
+        "threshold_value": 100.0,
+        "threshold_unit": "INR_lakhs",
+        "threshold_operator": ">=",
+        "source_clause": "The bidder should have had an average annual financial turnover of Rs. 1 Crore during the last three years, as evidenced by the audited annual accounts.",
+        "required_documents": ["Audited Balance Sheet / P&L", "CA Certificate"],
+        "is_mandatory": true
+      },
+      {
+        "id": "C2",
+        "name": "EMD (Bid Security)",
+        "type": "financial",
+        "description": "Bid security as specified in the Bid Data Sheet",
+        "required_documents": ["Bank Guarantee / FDR / Demand Draft"],
+        "is_mandatory": true,
+        "source_clause": "The Bidder shall furnish, as part of its bid, a bid security as specified in the BDS."
+      },
+      {
+        "id": "C3",
+        "name": "Technical Experience",
+        "type": "technical",
+        "description": "Prior supply of similar goods to Government or equivalent",
+        "required_documents": ["Purchase Order copies", "Completion / Delivery Certificates"],
+        "is_mandatory": true,
+        "source_clause": "The bidder shall have successfully completed supply of similar goods within the last 5 years."
+      },
+      {
+        "id": "C4",
+        "name": "Non-Blacklisting Declaration",
+        "type": "compliance",
+        "required_documents": ["Self-declaration on letterhead"],
+        "is_mandatory": true,
+        "source_clause": "Bidder shall declare that it has not been blacklisted / debarred by any Central or State Government."
+      }
+    ]
+  }
+]
