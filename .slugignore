@@ -1,0 +1,9 @@
+web/
+docs/
+scripts/
+seed/
+logs/
+.gstack/
+.pytest_cache/
+*.pdf
+QA-REPORT.md

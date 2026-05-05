@@ -21,6 +21,11 @@ import os
 import sqlite3
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+# Load .env (project root) before importing modules that read os.getenv at import time.
+load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -52,9 +57,14 @@ def _init_state(app: FastAPI) -> None:
 
 def create_app() -> FastAPI:
     app = FastAPI(title="TenderAudit API", version="0.1.0")
+    cors_env = os.getenv(
+        "CORS_ALLOW_ORIGINS",
+        "http://localhost:3000,http://localhost:3001",
+    )
+    allow_origins = [o.strip() for o in cors_env.split(",") if o.strip()]
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:3000"],
+        allow_origins=allow_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
