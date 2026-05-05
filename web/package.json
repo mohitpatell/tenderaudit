@@ -2,10 +2,14 @@
   "name": "tenderaudit-web",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "20.x",
+    "npm": "10.x"
+  },
   "scripts": {
     "dev": "next dev --port 3001",
     "build": "next build",
-    "start": "next start --port 3001",
+    "start": "next start --port ${PORT:-3001}",
     "lint": "next lint"
   },
   "dependencies": {
