@@ -19,7 +19,7 @@ npm-debug.log*
 yarn-error.log*
 
 # Data (runtime artefacts — not committed)
-data/
+/data/
 seed/pdfs/*.pdf
 seed/bidders/*/
 seed/demo-zips/_work/
