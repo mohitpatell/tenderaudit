@@ -12,6 +12,7 @@ Two paths:
 
 from __future__ import annotations
 
+import logging
 import os
 import uuid
 from pathlib import Path
@@ -21,6 +22,8 @@ from ..core import provenance, sections
 from ..core.llm_client import LLMClient
 from ..core.pdf_loader import Document
 from .schemas import BBox, Criterion, CriterionExtractionResult, Tender
+
+log = logging.getLogger(__name__)
 
 _PROMPT_PATH = Path(__file__).parent / "prompts" / "criterion_extract.txt"
 
