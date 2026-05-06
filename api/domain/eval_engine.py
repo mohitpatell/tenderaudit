@@ -191,17 +191,30 @@ def evaluate(
     )
 
     raw_verdicts: list[Verdict] = []
+    retrieve_failures = 0
+    evaluate_failures = 0
     for criterion in tender.criteria:
         for bidder in bidders:
             try:
                 evidence = retrieve_fn(tender.id, criterion, bidder.id, k)
             except Exception as e:  # pragma: no cover - defensive
-                log.warning("retrieve failed for %s/%s: %s", criterion.id, bidder.id, e)
+                # log.exception captures the stack trace; without this, a
+                # broken RAG (e.g., the chroma/openai SDK mismatch we fixed)
+                # is indistinguishable from a real "no evidence" finding.
+                log.exception(
+                    "retrieve failed for criterion=%s bidder=%s: %s",
+                    criterion.id, bidder.id, e,
+                )
                 evidence = []
+                retrieve_failures += 1
             try:
                 raw = evaluate_fn(criterion, bidder, evidence)
             except Exception as e:  # pragma: no cover - LLM transient
-                log.warning("LLM evaluate failed for %s/%s: %s", criterion.id, bidder.id, e)
+                log.exception(
+                    "LLM evaluate failed for criterion=%s bidder=%s: %s",
+                    criterion.id, bidder.id, e,
+                )
+                evaluate_failures += 1
                 raw = VerdictLLM(
                     criterion_id=criterion.id,
                     bidder_id=bidder.id,
@@ -211,6 +224,14 @@ def evaluate(
                     evidence=[],
                 )
             raw_verdicts.append(_verdict_from_llm(raw, evidence))
+
+    if retrieve_failures or evaluate_failures:
+        log.error(
+            "evaluation completed with %d retrieve failures and %d LLM "
+            "evaluate failures; matrix may contain spurious NeedsManualReview "
+            "verdicts that should be diagnosed before relying on the result",
+            retrieve_failures, evaluate_failures,
+        )
 
     # HARD guard: every NotEligible MUST be backed by evidence.
     verdicts = no_silent_disqual.enforce(raw_verdicts)

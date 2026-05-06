@@ -22,8 +22,12 @@ yarn-error.log*
 data/
 seed/pdfs/*.pdf
 seed/bidders/*/
+seed/demo-zips/_work/
 !seed/pdfs/.gitkeep
 !seed/bidders/.gitkeep
+
+# Throwaway QA fixtures (use seed/demo-zips/ instead)
+web/public/_test/
 
 # Env
 .env
@@ -39,3 +43,4 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+.gstack/

@@ -13,7 +13,7 @@ from typing import Any
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 
-from ...core import audit, pdf_loader, storage
+from ...core import audit, pdf_loader, persistence, storage
 from ..schemas import BBox, Bidder, BidderDoc
 
 log = logging.getLogger(__name__)
@@ -100,14 +100,32 @@ async def upload_bidder(
 
     bidder = Bidder(id=bidder_id, tender_id=tender_id, name=bidder_name, documents=docs)
     state.bidders.setdefault(tender_id, {})[bidder_id] = bidder
+    persistence.save_bidder(state.audit_conn, bidder)
 
-    # Index into RAG (best-effort; failure should not break the upload).
+    # Index into RAG. Indexing failures are NOT silently swallowed: without an
+    # index, every verdict for this bidder will fall back to NeedsManualReview
+    # ("no evidence retrieved"), which is indistinguishable from a real
+    # uncertainty signal in the matrix.
     try:
         from .. import rag
 
-        rag.index_bidder_docs(tender_id, bidder, pages_by_doc_id)
+        indexed = rag.index_bidder_docs(tender_id, bidder, pages_by_doc_id)
+        if indexed == 0:
+            log.error(
+                "RAG indexing produced 0 chunks for bidder %s (%s) -- "
+                "check embedder compatibility and PDF text extraction",
+                bidder_id, bidder_name,
+            )
+        else:
+            log.info(
+                "RAG indexed %d chunks for bidder %s (%s)",
+                indexed, bidder_id, bidder_name,
+            )
     except Exception as e:  # pragma: no cover
-        log.warning("RAG indexing failed for bidder %s: %s", bidder_id, e)
+        log.exception(
+            "RAG indexing failed for bidder %s (%s): %s",
+            bidder_id, bidder_name, e,
+        )
 
     audit.append(
         state.audit_conn,

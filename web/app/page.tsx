@@ -1,22 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Shield, FileText, CheckCircle, BookOpen, ArrowRight, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { UploadDropzone } from "@/components/UploadDropzone";
-import { uploadTender } from "@/lib/api";
-
-const PAST_TENDERS = [
-  { id: "crpf-1", title: "Supply of Armoured Vehicles", nit: "CRPF/NIT-71/2024", issuer: "CRPF", date: "2024-03-15" },
-  { id: "mock", title: "Border Security Force Equipment", nit: "BSF/NIT-45/2024", issuer: "BSF", date: "2024-02-10" },
-];
+import { listTenders, uploadTender } from "@/lib/api";
+import type { TenderSummary } from "@/lib/types";
 
 export default function LandingPage() {
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
+  const [pastTenders, setPastTenders] = useState<TenderSummary[]>([]);
+  const [tendersLoading, setTendersLoading] = useState(true);
+
+  useEffect(() => {
+    listTenders()
+      .then((rows) => setPastTenders(rows))
+      .catch(() => setPastTenders([]))
+      .finally(() => setTendersLoading(false));
+  }, []);
 
   async function handleTenderUpload(file: File) {
     setUploading(true);
@@ -24,10 +30,9 @@ export default function LandingPage() {
       const { id } = await uploadTender(file);
       toast.success("Tender uploaded — extracting criteria…");
       router.push(`/tender/${id}/criteria`);
-    } catch {
-      // fallback for demo
-      toast.info("Backend offline — using demo tender");
-      router.push("/tender/crpf-1/criteria");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Upload failed";
+      toast.error(message);
     } finally {
       setUploading(false);
     }
@@ -48,6 +53,12 @@ export default function LandingPage() {
           <nav className="flex items-center gap-4 text-sm text-slate-600">
             <a href="#features" className="hover:text-slate-900 transition-colors">Features</a>
             <a href="#demo" className="hover:text-slate-900 transition-colors">Demo</a>
+            <Link
+              href="/data"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
+              View stored data &amp; audit log →
+            </Link>
             <Button size="sm" variant="outline">Sign in</Button>
           </nav>
         </div>
@@ -89,28 +100,47 @@ export default function LandingPage() {
         {/* Past tenders */}
         <div className="max-w-2xl mx-auto">
           <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4 text-left">Recent Tenders</h2>
-          <div className="space-y-3">
-            {PAST_TENDERS.map((t) => (
-              <Card
-                key={t.id}
-                className="cursor-pointer hover:border-primary/40 hover:shadow-sm transition-all group"
-                onClick={() => router.push(`/tender/${t.id}/criteria`)}
-              >
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <FileText className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-medium text-slate-900 text-sm">{t.title}</p>
-                      <p className="text-xs text-slate-500">{t.nit} · {t.issuer} · {t.date}</p>
-                    </div>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-primary transition-colors" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {tendersLoading ? (
+            <div className="text-sm text-slate-400 text-left">Loading…</div>
+          ) : pastTenders.length === 0 ? (
+            <div className="text-sm text-slate-400 text-left p-4 border border-dashed border-slate-200 rounded-xl">
+              No tenders yet. Upload a tender PDF above to get started.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {pastTenders.map((t) => {
+                const target = t.verdict_count > 0
+                  ? `/tender/${t.id}/matrix`
+                  : `/tender/${t.id}/criteria`;
+                return (
+                  <Card
+                    key={t.id}
+                    className="cursor-pointer hover:border-primary/40 hover:shadow-sm transition-all group"
+                    onClick={() => router.push(target)}
+                  >
+                    <CardContent className="p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="h-9 w-9 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <FileText className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="text-left">
+                          <p className="font-medium text-slate-900 text-sm">{t.title ?? "Untitled tender"}</p>
+                          <p className="text-xs text-slate-500">
+                            {[t.nit_number, t.issuer].filter(Boolean).join(" · ") || "—"}
+                            {" · "}
+                            {t.criteria_count} criteria
+                            {t.bidder_count > 0 ? ` · ${t.bidder_count} bidder${t.bidder_count > 1 ? "s" : ""}` : ""}
+                            {t.verdict_count > 0 ? ` · ${t.verdict_count} verdicts` : ""}
+                          </p>
+                        </div>
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-primary transition-colors" />
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 

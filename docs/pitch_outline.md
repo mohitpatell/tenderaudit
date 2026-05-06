@@ -44,9 +44,9 @@
 
 **Tender → Criteria → Index → Evaluate → Sign**
 
-1. **Ingest:** PyMuPDF (digital) + PaddleOCR-VL 1.5 (scanned); sha256 blob addressing in MinIO
+1. **Ingest:** PyMuPDF (digital) + Tesseract fallback today; PaddleOCR-VL 1.5 and MinIO are pilot upgrades
 2. **Extract:** `gpt-4o-2024-08-06` Structured Outputs → `[Criterion]` Pydantic (strict=true); officer reviews + approves before evaluation begins
-3. **Index:** Bidder documents chunked (512 tokens, 64 overlap) → `text-embedding-3-large` → pgvector (11.4× throughput vs Qdrant at 50M vectors per TigerData May 2025 benchmark)
+3. **Index:** Bidder documents chunked and embedded into Chroma today (`text-embedding-3-small` when OpenAI is configured); production target is token-aware chunks + pgvector
 4. **Evaluate:** Per (criterion, bidder): RAG top-5 filtered by doc_type → `gpt-4o-2024-08-06` compares evidence vs threshold → Verdict `{Eligible|NotEligible|NeedsManualReview}` + `[Evidence {bbox, quote}]`
 5. **Sign:** `no_silent_disqual.py` hard guard → SHA-256 audit log → pyHanko PKCS#7 signed matrix PDF
 
@@ -88,7 +88,7 @@ TenderAudit is the first system that maps GFR Rule 173 eligibility criteria to b
 - **GFR 2017:** Rule 173 (criteria specification); Rule 162 (single-bid flag); Land-Border-Country restriction (F.No.6/18/2019-PPD) extracted as mandatory criterion; MSE EMD exemption (MSE Order 2012) detected from Udyam cert
 - **GIGW 3.0:** WCAG 2.1 AA via shadcn/Radix; semantic matrix table for screen readers; IS 17802 mapping
 - **CERT-In Safe-to-Host:** VAPT scope documented; ~₹3–8L; 4–6 weeks; 6-hour incident reporting
-- **Air-gap Level 1 (CRPF edge sites):** No internet; manual verdicts; offline pyHanko signing; RHEL 8/9
+- **Air-gap Level 1 (CRPF edge sites):** Target mode with no internet, manual verdicts, offline pyHanko signing, RHEL 8/9
 - **Air-gap Level 2 (CRPF HQ Delhi):** vLLM + Qwen 2.5 32B Q4 on A100; BGE-M3 embeddings (32.1% R@1 on 12 Indian languages, arXiv:2601.10205); single `.env` toggle
 
 ---
@@ -124,7 +124,7 @@ TenderAudit is the first system that maps GFR Rule 173 eligibility criteria to b
 **We need a CRPF procurement officer and a CERT-In auditor, not a grant.**
 
 - Team: \<name, role\> | \<name, role\> | \<name, role\>
-- Built in 14 days using Claude Code and OpenAI gpt-4o-2024-08-06
+- Built in 14 days; runs on OpenAI `gpt-4o-2024-08-06` Structured Outputs (cloud) or vLLM-served Qwen 2.5 32B / Llama 3.3 70B (air-gap)
 - Ask: CRPF DG (HQ Delhi) letter of intent for pilot + ₹\<X\>L for CERT-In Safe-to-Host VAPT engagement
 - Timeline: 4 weeks to Level-2 air-gap deployment at CRPF HQ → 6 weeks to CERT-In Safe-to-Host → first live tender evaluation
 - Long-term: NIC Class III DSC for signed audit PDF → GeM buyer API integration → BGE-M3 embeddings for Hindi-language bidder documents → BHASHINI translation hooks for regional procurement offices

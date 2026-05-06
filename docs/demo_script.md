@@ -5,8 +5,8 @@ Target runtime: 120 seconds. Rehearse at least 6 times.
 Pre-demo checklist:
 - [ ] `make dev` running; API on :8001, UI on :3001
 - [ ] Browser tab open at http://localhost:3001 (Upload page visible)
-- [ ] `seed/tenders/crpf-bhopal-nit71.pdf` on desktop
-- [ ] `seed/bidders/bidder-A-clean.zip`, `bidder-B-shortfall.zip`, `bidder-C-missing-iso.zip`, `bidder-D-ambiguous.zip` on desktop
+- [ ] `seed/pdfs/crpf-2-bhopal-nit71.pdf` on desktop
+- [ ] Bidder ZIPs from `seed/demo-zips/`: `bidder-mahindra-defence.zip`, `bidder-beml-limited.zip`, `bidder-tata-advanced-systems.zip`, `bidder-force-motors.zip` on desktop
 - [ ] Pre-seeded matrix view open in hidden tab (fallback)
 - [ ] Signed PDF already generated in `data/signed/` (fallback download)
 - [ ] Screen resolution: 1440×900 or wider; browser zoom 90%
@@ -35,7 +35,7 @@ Pre-demo checklist:
 
 **What you see:** Spinner. Toast: "Extracted 6 criteria in 4.1s."
 
-**Fallback:** Click **Load Pre-seeded Tender**. Say: "Here's the pre-processed version."
+**Fallback:** Switch to the pre-seeded matrix/review tab prepared before the demo. Say: "Here's the pre-processed version."
 
 ---
 
@@ -118,7 +118,7 @@ Pre-demo checklist:
 
 | Step | Failure mode | Fallback action |
 |---|---|---|
-| Tender upload | Timeout or OCR slow | Load pre-seeded tender from seed database; click "Load Pre-seeded" |
+| Tender upload | Timeout or OCR slow | Switch to the pre-seeded tender/matrix tab |
 | Criteria not extracted | LLM failure | Show pre-seeded criteria list; say "extracted from this document" |
 | Bidder indexing slow | Embedding service lag | Switch to pre-seeded matrix view tab |
 | Matrix not populating | Evaluation engine timeout | Switch to pre-seeded matrix tab |
@@ -133,7 +133,7 @@ Pre-demo checklist:
 It is a runtime guard in `no_silent_disqual.py`, not a prompt instruction. If the evaluation engine attempts to persist a `NotEligible` verdict with zero evidence items, it raises `NoSilentDisqualError` and substitutes `NeedsManualReview`. No code path can bypass it without modifying the guard itself.
 
 **"How does the RAG work?"**
-Each bidder document is chunked into 512-token segments with 64-token overlap and embedded with `text-embedding-3-large`. On evaluation, the retrieval query is built from the criterion description + threshold + document type. pgvector returns the top-5 most similar chunks filtered by document type whitelist (so only CA certificates are retrieved for the turnover criterion, not ISO certificates).
+In the prototype, each bidder document is chunked with a 400-character sliding window and embedded with `text-embedding-3-small` when `OPENAI_API_KEY` is set; Chroma returns the top-5 similar chunks with a soft doc-type whitelist. The production target is 512-token chunks, `BAAI/bge-m3` or equivalent embeddings, and pgvector.
 
 **"What if a bidder uploads a fake CA certificate?"**
 TenderAudit retrieves and surfaces what it finds; it does not validate documents against external registries. Manual verification of the CA certificate against the ICAI registry is the procuring officer's responsibility — and is documented in the `NeedsManualReview` explanation when certificate issuer details are inconsistent.
@@ -145,4 +145,4 @@ TenderAudit retrieves and surfaces what it finds; it does not validate documents
 GFR Rule 173 and the Two-Bid system require that bidders have an opportunity to explain deficiencies before final disqualification. A `NeedsManualReview` verdict preserves this right. A `NotEligible` verdict closes it. The system errs on the side of `NeedsManualReview` when evidence is incomplete or ambiguous — this is the legally defensible choice.
 
 **"Can this run in CRPF's air-gapped environment?"**
-Level 1 (no GPU, no internet): tender ingest, bidder chunking with BM25 keyword retrieval, officer manually records verdicts, audit PDF signed offline. Level 2 (CRPF HQ Delhi GPU): Qwen 2.5 32B Q4 on A100 via vLLM; BGE-M3 embeddings locally. Toggle: `LLM_BACKEND=vllm` in `.env`. No changes to any other code.
+Prototype requires OpenAI for AI-assisted extraction/evaluation. Target Level 1 (no GPU, no internet): tender ingest, bidder chunking with BM25 keyword retrieval, officer manually records verdicts, audit PDF signed offline. Target Level 2: Qwen 2.5 32B Q4 via vLLM and BGE-M3 embeddings locally.

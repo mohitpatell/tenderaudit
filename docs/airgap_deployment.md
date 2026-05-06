@@ -2,6 +2,11 @@
 
 This document describes how to run TenderAudit with no internet egress (Level 1) and on local sovereign GPU infrastructure (Level 2). The CRPF procurement use case makes air-gap a hard requirement, not an option.
 
+> **Status note:** This is a pilot deployment guide, not a description of the
+> current laptop prototype. The implemented prototype uses PyMuPDF +
+> Tesseract, Chroma, SQLite/local blobs, and OpenAI when an API key is
+> configured. `flow.md` is the source of truth for what works today.
+
 ---
 
 ## Why Air-Gap Matters for Procurement
@@ -16,11 +21,11 @@ CRPF's network reality per the source spec: "HQ Delhi GPUs only, edge sites CPU-
 
 ### What works in Level 1
 
-- Tender PDF ingest (PyMuPDF + PaddleOCR-VL)
+- Tender PDF ingest via PyMuPDF today; PaddleOCR-VL is the target scanned-page OCR upgrade
 - Bidder document ingest and chunking
-- Embedding-free retrieval: BM25 keyword search over bidder chunks (fallback when no vector DB)
+- Embedding-free retrieval via BM25 keyword search over bidder chunks; this still needs product wiring in the current prototype
 - Officer reviews extracted criteria manually (LLM extraction skipped)
-- Officer reviews bidder documents manually and records verdicts
+- Officer reviews bidder documents manually and records verdicts; full manual verdict entry is a Level-1 target workflow
 - No-silent-disqualification guard still enforced on manually entered verdicts
 - pyHanko signing of the matrix PDF (self-signed cert; no OCSP call needed offline)
 - SHA-256 hash-chained audit log

@@ -138,6 +138,14 @@ def extract(
         return extract_from_document(
             document, title=title, issuer=issuer, tender_id=tender_id, client=client
         )
-    except Exception:
-        # Never let extraction failure crash the upload route — fall back to stub.
+    except Exception as e:
+        # Falling back to the stub keeps the upload route responsive, but the
+        # failure must not be silent: a stub tender looks indistinguishable
+        # from a successful 1-criterion extraction in the UI, which previously
+        # made LLM/SDK regressions invisible. log.exception captures the
+        # stack trace for diagnosis.
+        log.exception(
+            "criterion extraction failed for tender '%s' (%s); "
+            "falling back to stub", title, type(e).__name__,
+        )
         return extract_stub(document, title=title, issuer=issuer, tender_id=tender_id)

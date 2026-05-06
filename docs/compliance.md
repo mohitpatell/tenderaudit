@@ -34,18 +34,18 @@ The SHA-256 hash-chained audit log satisfies §8. The `no_silent_disqual.py` gua
 
 Procurement files are high-value targets (competitive intelligence). The breach notification path:
 
-1. Detect: audit chain failure, unauthorized access alert, or MinIO policy violation
+1. Detect: audit chain failure, unauthorized access alert, or blob-store policy violation
 2. Notify Data Protection Board within 72 hours via prescribed portal
 3. Notify affected Data Principals (bidder company representatives) "as soon as practicable"
 4. Record all notifications in audit log
 
-Webhook stub: `api/audit/breach.py` with `CERT_IN_WEBHOOK_URL` and `DPBI_WEBHOOK_URL` environment variables.
+The current prototype does not include an automated breach webhook. A pilot deployment should add `CERT_IN_WEBHOOK_URL` and `DPBI_WEBHOOK_URL` notification jobs and record every notification in the audit log.
 
 #### Data Minimization
 
 The `Criterion` schema extracts only eligibility-relevant fields from bidder documents. The RAG retrieval is filtered by `doc_type` whitelist per criterion — the system does not retrieve pages from unrelated documents (e.g., it does not pull from PAN or GST cert when evaluating a turnover criterion).
 
-Bidder documents are stored at the chunk level in pgvector; raw PDFs are retained in MinIO for audit purposes. After the pilot retention period, raw PDFs should be deleted per a documented retention schedule.
+Bidder documents are stored as local blobs and Chroma chunks in the prototype. In pilot, bidder chunks should move to pgvector and raw PDFs to MinIO or an equivalent India-hosted object store. After the pilot retention period, raw PDFs should be deleted per a documented retention schedule.
 
 #### Right to Correction — §12
 
@@ -89,7 +89,7 @@ Mandatory for any application on `*.gov.in` or NIC infrastructure. CERT-In empan
 | PDF signing | Signature spoofing; certificate chain validation bypass |
 | Vector DB | Embedding inversion attacks (inferring bidder document content from stored vectors) |
 | Audit log | Privilege escalation to gain UPDATE/DELETE on audit_log table |
-| Infrastructure | PostgreSQL access controls; MinIO bucket ACLs; vLLM endpoint exposure |
+| Infrastructure | SQLite/file permissions and local blobs today; PostgreSQL access controls, MinIO bucket ACLs, and vLLM endpoint exposure in pilot |
 
 ### Timeline and budget
 
@@ -180,11 +180,11 @@ CRPF tender clauses specify that bidders disqualified at the technical stage hav
 | Requirement | Status | Implementation |
 |---|---|---|
 | DPDP §7(c) legitimate-use ground documented | Done | This document |
-| Immutable audit log (§8) | Done | SHA-256 hash-chained PostgreSQL, INSERT-only role |
+| Immutable audit log (§8) | Prototype done; pilot hardening needed | SHA-256 hash-chained SQLite today; PostgreSQL INSERT-only role for pilot |
 | No-silent-disqualification invariant | Done | `no_silent_disqual.py` runtime guard |
-| Right to correction via representation window (§12) | Done | `NeedsManualReview` + 72-hour window in UI |
+| Right to correction via representation window (§12) | Partially done | `NeedsManualReview` is surfaced; full 72-hour representation workflow is pilot work |
 | Data minimization via doc_type whitelisting | Done | RAG retrieval filtered by `doc_type` |
-| 72-hour DPDP breach notification stub | Done | `api/audit/breach.py` |
+| 72-hour DPDP breach notification workflow | Pilot requirement | Add DPBI/CERT-In notification job and audit entries |
 | WCAG 2.1 AA via shadcn/Radix | Done | Accessible matrix table + drill-down |
 | GFR Rule 173 criterion sourcing | Done | `source_clause` + `source_bbox` on every criterion |
 | Land-border-country criterion extraction | Done | Extracted from CRPF seed tenders |

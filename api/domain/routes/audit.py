@@ -11,7 +11,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Request
 
 from ...core import audit as audit_mod
-from ...core import storage
+from ...core import persistence, storage
 from .. import eval_engine, sign_pdf
 
 log = logging.getLogger(__name__)
@@ -35,6 +35,7 @@ async def evaluate_tender(request: Request, tender_id: str) -> dict:
 
     matrix = eval_engine.evaluate(tender, bidders)
     state.matrices[tender_id] = matrix
+    persistence.save_matrix(state.audit_conn, matrix)
     audit_mod.append(
         state.audit_conn,
         actor=os.getenv("ACTOR", "system"),

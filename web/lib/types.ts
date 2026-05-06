@@ -22,6 +22,7 @@ export interface Criterion {
   source_bbox: BBox | null;
   required_documents: string[];
   is_mandatory: boolean;
+  approved?: boolean;
 }
 
 export interface BidderDoc {
@@ -79,4 +80,40 @@ export interface AuditEntry {
   actor: string;
   timestamp: string;
   details: Record<string, unknown>;
+}
+
+export interface TenderSummary {
+  id: string;
+  title: string | null;
+  issuer: string | null;
+  nit_number: string | null;
+  criteria_count: number;
+  bidder_count: number;
+  verdict_count: number;
+  not_eligible_count: number;
+  manual_review_count: number;
+}
+
+export interface BidderSummary {
+  id: string;
+  tender_id: string;
+  name: string | null;
+  doc_count: number;
+}
+
+export interface AuditRow {
+  id: number;
+  ts: string;
+  actor: string;
+  action: string;
+  entity_type: string;
+  entity_id: string;
+  payload_json: string;
+  prev_hash: string;
+  this_hash: string;
+}
+
+export interface AuditChainStatus {
+  valid: boolean;
+  broken_at: number | null;
 }

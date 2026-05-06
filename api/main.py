@@ -31,6 +31,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
 from .core import audit as audit_mod
+from .core import persistence
 from .core import storage
 from .domain.routes import audit as audit_routes
 from .domain.routes import bidders as bidders_routes
@@ -42,17 +43,19 @@ DEFAULT_AUDIT_DB = "./data/audit.db"
 
 
 def _init_state(app: FastAPI) -> None:
-    """Allocate empty in-memory dicts and open the audit DB."""
-    app.state.tenders = {}
-    app.state.bidders = {}
-    app.state.matrices = {}
-    app.state.tender_blob = {}
-
+    """Open the audit DB and rehydrate in-memory state from SQLite."""
     db_path = os.getenv("AUDIT_DB", DEFAULT_AUDIT_DB)
     Path(db_path).parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(db_path, check_same_thread=False)
     audit_mod.init_db(conn)
+    persistence.init_db(conn)
     app.state.audit_conn = conn
+
+    tenders, bidders, matrices, tender_blob = persistence.load_state(conn)
+    app.state.tenders = tenders
+    app.state.bidders = bidders
+    app.state.matrices = matrices
+    app.state.tender_blob = tender_blob
 
 
 def create_app() -> FastAPI:

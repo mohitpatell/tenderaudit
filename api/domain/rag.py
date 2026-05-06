@@ -89,27 +89,60 @@ def _reset_client_for_tests() -> None:
     _CLIENT = None
 
 
+class _OpenAIEmbeddingFunction:
+    """Embeds chunks via the modern OpenAI SDK (>=1.0).
+
+    chromadb's bundled ``OpenAIEmbeddingFunction`` still calls the legacy
+    ``openai.Embedding.create()`` symbol, which raises ``APIRemovedInV1`` on
+    openai>=1.0 and silently fails the entire ``collection.add()`` call.
+    We bypass it with a thin client of our own.
+    """
+
+    def __init__(self, api_key: str, model_name: str) -> None:
+        from openai import OpenAI  # local import keeps cold start cheap
+
+        self._client = OpenAI(api_key=api_key)
+        self._model_name = model_name
+
+    def __call__(self, input: list[str]) -> list[list[float]]:  # noqa: A002
+        # chromadb passes a list[str]; OpenAI returns embeddings in the same
+        # order. Batch in groups of 256 to stay under the 8192-token limit
+        # for typical chunk sizes (~80 tokens each).
+        out: list[list[float]] = []
+        batch_size = 256
+        for i in range(0, len(input), batch_size):
+            batch = input[i : i + batch_size]
+            resp = self._client.embeddings.create(input=batch, model=self._model_name)
+            out.extend(d.embedding for d in resp.data)
+        return out
+
+    # chromadb >= 0.5 introspects this attribute on custom EFs.
+    def name(self) -> str:  # pragma: no cover - trivial
+        return f"openai-{self._model_name}"
+
+
 def _embedding_fn() -> Any:
     """Resolve the embedding function based on env vars.
 
-    - If ``OPENAI_API_KEY`` is set, use OpenAI ``text-embedding-3-small``.
+    - If ``OPENAI_API_KEY`` is set, use OpenAI ``text-embedding-3-small``
+      via our SDK-1.0-compatible wrapper.
     - Else if ``RAG_FALLBACK_LOCAL=1``, use SentenceTransformer all-MiniLM-L6-v2.
     - Else return None — chroma will use its default (built-in) embedder.
     """
+    api_key = os.getenv("OPENAI_API_KEY")
+    if api_key:
+        try:
+            return _OpenAIEmbeddingFunction(
+                api_key=api_key,
+                model_name=os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"),
+            )
+        except Exception as e:  # pragma: no cover - import / construction failure
+            log.warning("Custom OpenAI embedder init failed (%s); falling through", e)
+
     try:
         from chromadb.utils import embedding_functions
     except ImportError:  # pragma: no cover
         return None
-
-    api_key = os.getenv("OPENAI_API_KEY")
-    if api_key:
-        try:
-            return embedding_functions.OpenAIEmbeddingFunction(
-                api_key=api_key,
-                model_name=os.getenv("OPENAI_EMBED_MODEL", "text-embedding-3-small"),
-            )
-        except Exception:  # pragma: no cover - constructor failure
-            log.warning("OpenAIEmbeddingFunction init failed; falling through")
 
     if os.getenv("RAG_FALLBACK_LOCAL") == "1":
         try:

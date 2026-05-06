@@ -32,6 +32,7 @@ class Criterion(BaseModel):
     source_bbox: Optional[BBox] = None
     required_documents: list[str] = Field(default_factory=list)
     is_mandatory: bool = True
+    approved: bool = False
 
 
 class Tender(BaseModel):

@@ -42,6 +42,7 @@ export default function DrillDownPage() {
   const load = useCallback(async () => {
     try {
       const matrix = await getMatrix("crpf-1");
+      if (!matrix) return;
       setTenderId(matrix.tender_id);
       const v = matrix.verdicts.find((v) => v.bidder_id === bidId && v.criterion_id === critId);
       const c = matrix.criteria.find((c) => c.id === critId);

@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ChevronRight, FileText, LayoutGrid } from "lucide-react";
+import { ChevronRight, FileText, LayoutGrid, FileArchive } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { MatrixGrid } from "@/components/MatrixGrid";
 import { SignedPdfButton } from "@/components/SignedPdfButton";
 import { EvidenceDrawer } from "@/components/EvidenceDrawer";
@@ -25,6 +26,9 @@ export default function MatrixPage() {
       try {
         const m = await getMatrix(id);
         setMatrix(m);
+      } catch (err) {
+        console.error("Failed to load matrix", err);
+        setMatrix(null);
       } finally {
         setLoading(false);
       }
@@ -70,10 +74,26 @@ export default function MatrixPage() {
     );
   }
 
-  if (!matrix) {
+  if (!matrix || matrix.verdicts.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <p className="text-slate-400">Matrix not found for tender {id}</p>
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="max-w-md text-center space-y-4">
+          <div className="h-16 w-16 mx-auto rounded-full bg-slate-100 flex items-center justify-center">
+            <LayoutGrid className="h-8 w-8 text-slate-400" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">No evaluation yet</h2>
+            <p className="text-sm text-slate-500 mt-1">
+              Upload bidder ZIP archives to run the evaluator against the approved criteria. The matrix will populate from real verdicts — nothing here is precomputed.
+            </p>
+          </div>
+          <Button asChild className="gap-2">
+            <Link href={`/tender/${id}/upload-bidders`}>
+              <FileArchive className="h-4 w-4" />
+              Upload Bidders
+            </Link>
+          </Button>
+        </div>
       </div>
     );
   }

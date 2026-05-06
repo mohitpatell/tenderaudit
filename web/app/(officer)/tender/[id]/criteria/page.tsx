@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowRight, CheckCircle, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, CheckCircle, ChevronRight, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CriterionCard } from "@/components/CriterionCard";
-import { getTender } from "@/lib/api";
-import { MOCK_CRITERIA, MOCK_TENDER } from "@/lib/mock";
+import { approveCriteria, getTender } from "@/lib/api";
 import type { Criterion, Tender } from "@/lib/types";
 
 export default function CriteriaPage() {
@@ -19,17 +19,23 @@ export default function CriteriaPage() {
   const [criteria, setCriteria] = useState<Criterion[]>([]);
   const [approved, setApproved] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!id || id === "undefined") {
+      setError("No tender id in the URL — please upload a tender PDF first.");
+      setLoading(false);
+      return;
+    }
     async function load() {
       try {
         const t = await getTender(id);
         setTender(t);
-        const crit = t.criteria.length > 0 ? t.criteria : MOCK_CRITERIA;
-        setCriteria(crit);
-      } catch {
-        setTender(MOCK_TENDER);
-        setCriteria(MOCK_CRITERIA);
+        setCriteria(t.criteria);
+        setApproved(new Set(t.criteria.filter((c) => c.approved).map((c) => c.id)));
+      } catch (err) {
+        console.error("Failed to load tender", err);
+        setError(`Tender ${id} not found. Upload a tender PDF first.`);
       } finally {
         setLoading(false);
       }
@@ -37,8 +43,25 @@ export default function CriteriaPage() {
     load();
   }, [id]);
 
-  function handleApprove(cid: string) {
+  async function handleApprove(cid: string) {
     setApproved((prev) => new Set([...prev, cid]));
+    setCriteria((prev) =>
+      prev.map((c) => (c.id === cid ? { ...c, approved: true } : c)),
+    );
+    try {
+      await approveCriteria(id, [cid]);
+    } catch (err) {
+      console.error("Failed to persist approval", err);
+      toast.error("Could not save approval — backend offline.");
+      setApproved((prev) => {
+        const next = new Set(prev);
+        next.delete(cid);
+        return next;
+      });
+      setCriteria((prev) =>
+        prev.map((c) => (c.id === cid ? { ...c, approved: false } : c)),
+      );
+    }
   }
 
   function handleUpdate(updated: Criterion) {
@@ -62,6 +85,27 @@ export default function CriteriaPage() {
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-4 w-48" />
         {[1, 2, 3].map((i) => <Skeleton key={i} className="h-48 w-full rounded-xl" />)}
+      </div>
+    );
+  }
+
+  if (error || !tender) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="max-w-md text-center space-y-4">
+          <div className="h-16 w-16 mx-auto rounded-full bg-slate-100 flex items-center justify-center">
+            <FileText className="h-8 w-8 text-slate-400" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">Tender not found</h2>
+            <p className="text-sm text-slate-500 mt-1">
+              {error ?? "This tender id does not exist on the backend."}
+            </p>
+          </div>
+          <Button asChild>
+            <Link href="/">Back to upload</Link>
+          </Button>
+        </div>
       </div>
     );
   }
